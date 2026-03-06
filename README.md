@@ -1,6 +1,7 @@
 <p align="center">
   <img src="resources/pacifier.png" alt="PacifierShop icon" width="88" />
 </p>
+<p align="center"><em>Because silence became unberable in the post-capitalist 2026</em></p>
 
 # PacifierShop
 
@@ -37,13 +38,26 @@ The app supports both single links and playlist links, writes downloads to a cho
 ## Requirements
 
 - Python `3.11`
-- Conda (Anaconda or Miniconda)
+- `pip` or Conda (Anaconda or Miniconda)
 - Platform support for the bundled binary tooling (`spotdl`, `yt-dlp`, `ffmpeg`, `ffprobe`)
+- `ffmpeg` and `ffprobe` available in your environment `PATH` when vendoring binaries
 
 ## Installation
 
+### Option A: pip
+
 ```bash
-conda env update -n dtu02450 -f environment.yml
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e . pytest pyinstaller
+```
+
+### Option B: Conda
+
+```bash
+conda env create -f environment.yml
+conda activate pacifiershop
 ```
 
 ## Usage
@@ -51,13 +65,13 @@ conda env update -n dtu02450 -f environment.yml
 Run the app:
 
 ```bash
-conda run -n dtu02450 python scripts/run.py
+python scripts/run.py
 ```
 
 Build a standalone app bundle:
 
 ```bash
-conda run -n dtu02450 python scripts/build.py
+python scripts/build.py
 ```
 
 Expected build output:
@@ -70,7 +84,7 @@ Expected build output:
 Run tests locally:
 
 ```bash
-conda run -n dtu02450 pytest -q
+pytest -q
 ```
 
 Automated checks run on every GitHub `push` and `pull_request` via `.github/workflows/ci.yml`.

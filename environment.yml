@@ -1,4 +1,4 @@
-name: dtu02450
+name: pacifiershop
 channels:
   - conda-forge
   - defaults

@@ -86,7 +86,7 @@ def _copy_conda_binary(name: str, dest_name: str | None = None) -> Path:
     source = shutil.which(name)
     if not source:
         raise RuntimeError(
-            f"Could not locate `{name}` in PATH. Run this script via `conda run -n dtu02450 ...`."
+            f"Could not locate `{name}` in PATH. Use Conda or pip with `{name}` available in PATH."
         )
 
     destination = BIN_DIR / (dest_name or name)
