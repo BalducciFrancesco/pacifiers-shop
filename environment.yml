@@ -1,0 +1,11 @@
+name: dtu02450
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pyside6
+  - yt-dlp
+  - ffmpeg
+  - pyinstaller
+  - pytest

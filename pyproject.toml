@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pacifiershop"
+version = "0.1.0"
+description = "Desktop wrapper for spotdl and yt-dlp"
+requires-python = ">=3.11"
+authors = [
+  {name = "Francesco"}
+]
+dependencies = [
+  "PySide6>=6.7",
+]
+
+[project.scripts]
+pacifiershop = "pacifiershop.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
