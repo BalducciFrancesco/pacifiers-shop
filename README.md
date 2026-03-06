@@ -1,26 +1,81 @@
+<p align="center">
+  <img src="resources/pacifier.png" alt="PacifierShop icon" width="88" />
+</p>
+
 # PacifierShop
 
-PacifierShop is a small Python desktop app that wraps `spotdl` and `yt-dlp` behind a simple GUI to download media from Spotify or YouTube URLs.
+PacifierShop is a lightweight Python desktop app that wraps `spotdl` and `yt-dlp` in a single GUI for Spotify and YouTube links.
 
-## Disclaimer
+## Table of Contents
 
-This repository is a **practice project for vibe coding** and learning.
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Testing and CI](#testing-and-ci)
+- [Acknowledgements](#acknowledgements)
+- [Legal Disclaimer](#legal-disclaimer)
+- [License](#license)
 
-- I am **not affiliated** with Spotify, YouTube, `spotdl`, `yt-dlp`, or FFmpeg.
-- I bear **no legal responsibility** for how this software is used.
-- You are responsible for complying with platform Terms of Service, local laws, and copyright rules in your jurisdiction.
+## Overview
+
+PacifierShop routes media URLs automatically:
+
+- Spotify links use `spotdl`
+- YouTube links use `yt-dlp`
+
+The app supports both single links and playlist links, writes downloads to a chosen folder, and streams logs in-app.
 
 ## Features
 
-- Detects URL type and routes automatically:
-  - Spotify links -> `spotdl`
-  - YouTube links -> `yt-dlp`
-- Lets you select output folder from the UI
-- Supports quality presets (`max`, `efficient`)
-- Streams command logs in-app
-- Handles single links and playlist links
+- Automatic routing by URL type
+- Quality presets: `max` and `efficient`
+- Playlist-aware output organization
+- Desktop app packaging via PyInstaller
 
-## Tech Stack / Credits
+## Requirements
+
+- Python `3.11`
+- Conda (Anaconda or Miniconda)
+- Platform support for the bundled binary tooling (`spotdl`, `yt-dlp`, `ffmpeg`, `ffprobe`)
+
+## Installation
+
+```bash
+conda env update -n dtu02450 -f environment.yml
+```
+
+## Usage
+
+Run the app:
+
+```bash
+conda run -n dtu02450 python scripts/run.py
+```
+
+Build a standalone app bundle:
+
+```bash
+conda run -n dtu02450 python scripts/build.py
+```
+
+Expected build output:
+
+- macOS: `dist/PacifierShop.app`
+- Other platforms: `dist/PacifierShop/`
+
+## Testing and CI
+
+Run tests locally:
+
+```bash
+conda run -n dtu02450 pytest -q
+```
+
+Automated checks run on every GitHub `push` and `pull_request` via `.github/workflows/ci.yml`.
+
+## Acknowledgements
 
 Thanks to the maintainers and contributors of:
 
@@ -33,66 +88,16 @@ Thanks to the maintainers and contributors of:
 - [pytest](https://docs.pytest.org/)
 - [Conda](https://conda.io/)
 
-## Setup (Conda)
+Icon credit: `resources/pacifier.png` is included as a project asset in this repository.
 
-```bash
-conda env update -n dtu02450 -f environment.yml
-```
+## Legal Disclaimer
 
-## Run (Development)
+This repository is for practice and vibe-coding purposes.
 
-```bash
-conda run -n dtu02450 python scripts/run.py
-```
-
-## Tests
-
-Run locally:
-
-```bash
-conda run -n dtu02450 pytest -q
-```
-
-## CI Checks (Every Push)
-
-GitHub Actions is configured to run the test suite on:
-
-- every `push`
-- every `pull_request`
-
-Workflow file:
-
-- `.github/workflows/ci.yml`
-
-## Vendor Binaries
-
-```bash
-conda run -n dtu02450 python scripts/vendor_binaries.py
-```
-
-This vendors `spotdl`, `yt-dlp`, `ffmpeg`, and `ffprobe` into `resources/bin`.
-
-## Build App Bundle
-
-```bash
-conda run -n dtu02450 python scripts/build.py
-```
-
-Build outputs:
-
-- macOS: `dist/PacifierShop.app`
-- other platforms: `dist/PacifierShop/`
-
-## Project Layout
-
-```text
-src/pacifiershop/      app code
-tests/                 automated tests
-scripts/               run/build/vendor helper scripts
-resources/             app assets and vendored binaries
-.github/workflows/     CI workflows
-```
+- The project is not affiliated with Spotify, YouTube, `spotdl`, `yt-dlp`, FFmpeg, or their maintainers.
+- The author bears no legal responsibility for platform misuse or copyright violations.
+- Users are responsible for complying with platform Terms of Service, local law, and copyright rules.
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE`.
+MIT License. See `LICENSE`.
