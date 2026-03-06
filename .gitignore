@@ -6,8 +6,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .venv/
-build/
-dist/
+/build/
+/dist/
 *.spec
 resources/bin/
 .DS_Store

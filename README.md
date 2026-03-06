@@ -92,7 +92,20 @@ Run tests locally:
 pytest -q
 ```
 
-Automated checks run on every GitHub `push` and `pull_request` via `.github/workflows/ci.yml`.
+Automated checks run on `pull_request` and non-`main` pushes via `.github/workflows/ci.yml`.
+
+Automated releases run only for release-candidate tags via `.github/workflows/release.yml`.
+
+Tag format:
+
+```bash
+release-<candidate-name>
+```
+
+Release assets:
+
+- `PacifierShop-windows-<tag>.zip` (Windows executable package)
+- `PacifierShop-macos-<tag>.dmg` (DMG containing `PacifierShop.app`)
 
 ## Acknowledgements
 

@@ -29,8 +29,6 @@ def main() -> int:
         shutil.rmtree(BUILD)
 
     entry_script = ROOT / "scripts" / "run.py"
-    icon_path = ROOT / "resources" / "pacifier.icns"
-
     pyinstaller_cmd = [
         "pyinstaller",
         "--noconfirm",
@@ -44,10 +42,15 @@ def main() -> int:
         f"{ROOT / 'resources' / 'bin'}{sep}resources/bin",
         "--add-data",
         f"{ROOT / 'resources' / 'pacifier.png'}{sep}resources",
-        "--icon",
-        str(icon_path),
         str(entry_script),
     ]
+
+    if sys.platform == "darwin":
+        pyinstaller_cmd[1:1] = ["--icon", str(ROOT / "resources" / "pacifier.icns")]
+    elif os.name == "nt":
+        ico_path = ROOT / "resources" / "pacifier.ico"
+        if ico_path.exists():
+            pyinstaller_cmd[1:1] = ["--icon", str(ico_path)]
 
     run(pyinstaller_cmd)
     print("[build] Build complete")
