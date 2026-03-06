@@ -1,7 +1,12 @@
 <p align="center">
   <img src="resources/pacifier.png" alt="PacifierShop icon" width="88" />
 </p>
-<p align="center"><em>Because silence became unberable in the post-capitalist 2026</em></p>
+<p align="center">
+  <em>"Because silence became unberable in the post-capitalist 2026"</em>
+</p>
+<p align="center">
+  A vibe coding test.
+</p>
 
 # PacifierShop
 
