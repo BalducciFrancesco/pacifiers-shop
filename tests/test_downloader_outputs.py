@@ -154,6 +154,7 @@ def test_ytdlp_uses_basic_non_recode_syntax(_fake_runtime: Path, monkeypatch: py
         return cmd
 
     monkeypatch.setattr(downloader, "_ytdlp_cmd", _capture)
+    monkeypatch.setattr(downloader, "_has_working_ffmpeg", lambda *_args, **_kwargs: True)
 
     code = run_download(
         DownloadRequest(
@@ -170,3 +171,31 @@ def test_ytdlp_uses_basic_non_recode_syntax(_fake_runtime: Path, monkeypatch: py
     assert "-f" in captured
     assert "--merge-output-format" in captured
     assert "mp4" in captured
+
+
+def test_ytdlp_without_ffmpeg_uses_progressive_mp4_fallback(
+    _fake_runtime: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: list[str] = []
+    original = downloader._ytdlp_cmd
+
+    def _capture(url: str, output_dir: Path, quality: str) -> list[str]:
+        cmd = original(url, output_dir, quality)
+        captured[:] = cmd
+        return cmd
+
+    monkeypatch.setattr(downloader, "_ytdlp_cmd", _capture)
+    monkeypatch.setattr(downloader, "_has_working_ffmpeg", lambda *_args, **_kwargs: False)
+
+    code = run_download(
+        DownloadRequest(
+            url="https://www.youtube.com/watch?v=3_eashrci3Y",
+            output_dir=_fake_runtime,
+            tool=ToolChoice.YTDLP,
+        ),
+        lambda _: None,
+    )
+
+    assert code == 0
+    assert "--merge-output-format" not in captured
+    assert "b[ext=mp4]/best[ext=mp4]/best" in captured

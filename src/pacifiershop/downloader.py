@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import sys
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 from urllib.parse import parse_qs, urlparse
@@ -44,6 +45,30 @@ def _ensure_tool_exists(path: Path, label: str) -> None:
         raise RuntimeError(f"Missing bundled dependency: {label} at {path}")
 
 
+def _command_works(path: Path, arg: str = "-version") -> bool:
+    if not path.exists():
+        return False
+    try:
+        subprocess.run(
+            [str(path), arg],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+            timeout=3,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return True
+
+
+@lru_cache(maxsize=8)
+def _has_working_ffmpeg(bin_dir: Path | None = None) -> bool:
+    tool_dir = bin_dir or _bundled_bin_dir()
+    ffmpeg_bin = tool_dir / _binary_name("ffmpeg")
+    ffprobe_bin = tool_dir / _binary_name("ffprobe")
+    return _command_works(ffmpeg_bin) and _command_works(ffprobe_bin)
+
+
 def _spotdl_cmd(url: str, output_dir: Path, quality: str) -> list[str]:
     spotdl_bin = _bundled_bin_dir() / _binary_name("spotdl")
     _ensure_tool_exists(spotdl_bin, "spotdl")
@@ -62,20 +87,31 @@ def _spotdl_cmd(url: str, output_dir: Path, quality: str) -> list[str]:
 def _ytdlp_cmd(url: str, output_dir: Path, quality: str) -> list[str]:
     yt_dlp_bin = _bundled_bin_dir() / _binary_name("yt-dlp")
     _ensure_tool_exists(yt_dlp_bin, "yt-dlp")
+    can_merge = _has_working_ffmpeg()
     if quality == "max":
-        format_selector = "bestvideo*+bestaudio/best"
+        format_selector = (
+            "bv*[ext=mp4]+ba[ext=m4a]/bv*[ext=mp4]+ba/b[ext=mp4]/best"
+            if can_merge
+            else "b[ext=mp4]/best[ext=mp4]/best"
+        )
     else:
-        format_selector = "bestvideo*[height<=720]+bestaudio/best[height<=720]/best"
-    return [
+        format_selector = (
+            "bv*[ext=mp4][height<=720]+ba[ext=m4a]/bv*[height<=720]+ba/"
+            "b[height<=720][ext=mp4]/b[height<=720]/best"
+            if can_merge
+            else "b[height<=720][ext=mp4]/b[height<=720]/b[ext=mp4]/best"
+        )
+    cmd = [
         str(yt_dlp_bin),
         "-f",
         format_selector,
-        "--merge-output-format",
-        "mp4",
         "-o",
         str(output_dir / "%(title)s.%(ext)s"),
         url,
     ]
+    if can_merge:
+        cmd[3:3] = ["--merge-output-format", "mp4"]
+    return cmd
 
 
 def _is_spotify_playlist_url(url: str) -> bool:
@@ -136,9 +172,9 @@ def _target_output_dir(request: DownloadRequest) -> Path:
 def _env_with_binaries() -> dict[str, str]:
     env = os.environ.copy()
     bin_dir = _bundled_bin_dir()
-    ffmpeg_dir = bin_dir
-    existing_path = env.get("PATH", "")
-    env["PATH"] = f"{ffmpeg_dir}{os.pathsep}{existing_path}" if existing_path else str(ffmpeg_dir)
+    if _has_working_ffmpeg(bin_dir):
+        existing_path = env.get("PATH", "")
+        env["PATH"] = f"{bin_dir}{os.pathsep}{existing_path}" if existing_path else str(bin_dir)
     return env
 
 
@@ -152,6 +188,8 @@ def run_download(request: DownloadRequest, log: LogFn) -> int:
     if request.tool == ToolChoice.SPOTDL:
         cmd = _spotdl_cmd(request.url, target_dir, quality)
     elif request.tool == ToolChoice.YTDLP:
+        if not _has_working_ffmpeg():
+            log("Warning: ffmpeg/ffprobe unavailable. Falling back to progressive MP4 download.")
         cmd = _ytdlp_cmd(request.url, target_dir, quality)
     else:
         raise RuntimeError(f"Unsupported tool selection: {request.tool}")
